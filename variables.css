@@ -1,0 +1,13 @@
+:root {
+    --bg-color: #000;
+    --card-bg: #111;
+    --input-bg: #1a1a1a;
+    --input-border: #333;
+    --text-color: #fff;
+    --accent-color: #00bcd4;
+    --error-color: #ff4d4d;
+    --success-color: #4caf50;
+    --border-radius: 10px;
+    --transition-speed: 0.3s;
+    --font-family: 'Helvetica Neue', Arial, sans-serif;
+}
