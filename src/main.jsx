@@ -5,7 +5,7 @@ import App from './App.jsx'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import Registrarse from './pages/login.jsx'
 import ProtectedRoute from "./componentes/protectedroute.jsx";
-import RedirectIfAuth from './componentes/redirectIfauth'
+import RedirectIfAuth from './componentes/redirectifauth.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
