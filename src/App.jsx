@@ -27,12 +27,6 @@ export default function App() {
   const [imagenSeleccionada, setImagenSeleccionada] = useState(null);
   const menuFuera = useRef(null);
   const navigate = useNavigate();
-  const [menuVisible, setMenuVisible] = useState(false);
-  const [mostrarNotificaciones, setMostrarNotificaciones] = useState(false);
-  const [notificaciones, setNotificaciones] = useState([
-    { mensaje: 'Nuevo mensaje recibido', fecha: '28/07/2025' },
-    { mensaje: 'Actualización de tu perfil', fecha: '27/07/2025' }
-  ]);
 
   const [temaOscuro, setTemaOscuro] = useState(true);
 
@@ -191,157 +185,133 @@ export default function App() {
       {loading ? (
         <ThreadsLoader />
       ) : (
-        <header className='inicio'>
-          <section className='columna-1'>
-            <div className="icono">
-              <a href="/"><img src="/threads.ico" alt="Ícono" /></a>
-            </div>
-            <nav className="navegacion" ref={menuFuera}>
-              <a href="/"><GoHomeFill className='interaccion' title='Inicio' onClick={() => setTitulo('Inicio - Threads')} /></a>
-              <IoSearch className='interaccion' title='Buscar' onClick={() => setTitulo('Buscar - Threads')} />
-              <FaPlus className='interaccion' title='Crear' onClick={() => { setTitulo('Crear - Threads'); setMostrarThreads(prev => !prev); menuDespegable(!usuarioAutenticado); }} />
-              <FaRegHeart
-                className='interaccion'
-                title='Notificaciones'
-                onClick={() => {
-                  setTitulo('Notificaciones - Threads');
-                  menuDespegable(!usuarioAutenticado);
-                  setMostrarNotificaciones(prev => !prev);
-                }}
-              />
+        <>
+          <header className='inicio'>
+            <section className='columna1'>
+              <div className="icono">
+                <a href="/"><img src="/threads.ico" alt="Ícono" /></a>
+              </div>
+              <nav className="navegacion" ref={menuFuera}>
+                <a href="/"><GoHomeFill className='interaccion' title='Inicio' onClick={() => setTitulo('Inicio - Threads')} /></a>
+                <IoSearch className='interaccion' title='Buscar' onClick={() => setTitulo('Buscar - Threads')} />
+                <FaPlus className='interaccion' title='Crear' onClick={() => { setTitulo('Crear - Threads'); setMostrarThreads(prev => !prev); menuDespegable(!usuarioAutenticado); }} />
+                <FaRegHeart
+                  className='interaccion'
+                  title='Notificaciones'
+                  onClick={() => {
+                    setTitulo('Notificaciones - Threads');
+                    menuDespegable(!usuarioAutenticado);
+                  }}
+                />
 
-              {mostrarNotificaciones && (
-                <div className='notificaciones'>
-                  {notificaciones.length > 0 ? (
-                    notificaciones.map((notif, index) => (
-                      <div key={index} className='notificacion'>
-                        <p>{notif.mensaje}</p>
-                        <span>{notif.fecha}</span>
-                      </div>
-                    ))
+                <VscAccount className='interaccion' title='Perfil' onClick={manejarClick} />
+
+                {mostrarPerfil && usuarioAutenticado && (
+                  <div className="perfil">
+                    <h3>Threads - Perfil del Usuario:</h3>
+                    <p>Email: <span style={{ color: '#616161' }}>{user?.email}</span>.</p>
+                    <p>Sesión iniciada con: <i>{user?.providerData?.[0]?.providerId === 'google.com' ? 'Google' : 'Correo y contraseña'}</i>.</p>
+                  </div>
+                )}
+              </nav>
+
+              <div className="opciones">
+                <IoIosAttach className='interaccion' title='Fijar' onClick={() => { setTitulo('Fijar'); menuDespegable(!usuarioAutenticado); toggleTema(); }} />
+                <FaGripLines className='interaccion' title='Más' onClick={() => { setTitulo('Más'); menuDespegable(usuarioAutenticado); }} />
+              </div>
+
+              {menu && (
+                <div className='menu'>
+                  {usuarioAutenticado ? (
+                    <>
+                      <button onClick={cerrarSesion}>Salir del perfil</button>
+                    </>
+
                   ) : (
-                    <p className='sin-notificaciones'>No hay notificaciones nuevas</p>
+                    <>
+                      <GrGoogle style={{ fontSize: '40px' }} />
+                      <h1>Regístrate para publicar</h1>
+                      <p style={{ color: 'gray' }}>
+                        Únete a Threads para compartir ideas, hacer preguntas, publicar lo que se te ocurra y mucho más.
+                      </p>
+                      <div className="submenu" style={{ fontSize: '20px' }}>
+                        <FcGoogle />
+                        <Link to="/login" style={{ textDecoration: 'none', color: 'white' }}>
+                          <p>Continuar con Google</p>
+                        </Link>
+                        <MdKeyboardArrowRight />
+                      </div>
+                    </>
                   )}
                 </div>
               )}
+            </section>
 
-              <VscAccount className='interaccion' title='Perfil' onClick={manejarClick} />
+            <section className='feed'>
+              <div className={`threads ${mostrarThreads ? 'visible' : ''}`}>
+                {user && (
+                  <div className='cuadro'>
+                    <small>
+                      <p>Vas a publicar como: {user?.displayName || user?.email || 'Sin nombre'}.</p>
+                    </small>
+                    <textarea
+                      className='textarea-publicar'
+                      value={nuevoContenido}
+                      onChange={(e) => setNuevoContenido(e.target.value)}
+                      placeholder='¿Qué estás pensando? Puedes decir "Hola".'
+                      rows={4}
+                    />
 
-              {mostrarPerfil && usuarioAutenticado && (
-                <div className="perfil">
-                  <h3>Threads - Perfil del Usuario:</h3>
-                  {/* <p>Nombre: <span style={{ fontStyle: 'italic' }}>{user?.displayName || 'Sin nombre'}</span>.</p> */}
-                  <p>Email: <span style={{ color: '#616161' }}>{user?.email}</span>.</p>
-                  <p>Sesión iniciada con: <i>{user?.providerData?.[0]?.providerId === 'google.com' ? 'Google' : 'Correo y contraseña'}</i>.</p>
-                </div>
-              )}
-            </nav>
+                    {esUsuarioGoogle && (
+                      <small className="aviso-google">
+                        Los usuarios de Google no pueden subir imágenes por razones de seguridad.
+                      </small>
+                    )}
 
-            <div className="opciones">
-              <IoIosAttach className='interaccion' title='Fijar' onClick={() => { setTitulo('Fijar'); menuDespegable(!usuarioAutenticado); toggleTema(); }} />
-              <FaGripLines className='interaccion' title='Más' onClick={() => { setTitulo('Más'); menuDespegable(usuarioAutenticado); }} />
-            </div>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => setImagenSeleccionada(e.target.files[0])}
+                      disabled={esUsuarioGoogle}
+                    />
 
-            {menu && (
-              <div className='menu'>
-                {usuarioAutenticado ? (
-                  <>
-                    <button onClick={cerrarSesion}>Salir del perfil</button>
-                  </>
-
-                ) : (
-                  <>
-                    <GrGoogle style={{ fontSize: '40px' }} />
-                    <h1>Regístrate para publicar</h1>
-                    <p style={{ color: 'gray' }}>
-                      Únete a Threads para compartir ideas, hacer preguntas, publicar lo que se te ocurra y mucho más.
-                    </p>
-                    <div className="submenu" style={{ fontSize: '20px' }}>
-                      <FcGoogle />
-                      <Link to="/login" style={{ textDecoration: 'none', color: 'white' }}>
-                        <p>Continuar con Google</p>
-                      </Link>
-                      <MdKeyboardArrowRight />
-                    </div>
-                  </>
+                    <button
+                      className="boton-publicar"
+                      onClick={publicarThread}
+                      disabled={!nuevoContenido.trim()}
+                    >
+                      Publicar
+                    </button>
+                  </div>
                 )}
               </div>
-            )}
-          </section>
 
-          <section className='feed'>
-            <div className={`threads ${mostrarThreads ? 'visible' : ''}`}>
-              {user && (
-                <div className='cuadro'>
-                  <small>
-                    <p>Vas a publicar como: {user?.displayName || user?.email || 'Sin nombre'}.</p>
-                  </small>
-                  <textarea
-                    className='textarea-publicar'
-                    value={nuevoContenido}
-                    onChange={(e) => setNuevoContenido(e.target.value)}
-                    placeholder='¿Qué estás pensando? Puedes decir "Hola".'
-                    rows={4}
-                  />
+              <div className="contenido">
+                <h2>Últimos Threads</h2>
+                <ul>
+                  {threads.map((thread) => (
+                    <div className='acomodar' key={thread.id}>
+                      <strong>
+                        {thread.autor || 'Anónimo'} |
+                        <span>
+                          <small> Publicado el: {new Date(thread.creado_en).toLocaleString()} </small>
+                        </span>
+                      </strong>
+                      <p><span>dice: {thread.contenido}</span></p>
 
-                  {esUsuarioGoogle && (
-                    <small className="aviso-google">
-                      Los usuarios de Google no pueden subir imágenes por razones de seguridad.
-                    </small>
-                  )}
-
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => setImagenSeleccionada(e.target.files[0])}
-                    disabled={esUsuarioGoogle}
-                  />
-
-                  <button
-                    className="boton-publicar"
-                    onClick={publicarThread}
-                    disabled={!nuevoContenido.trim()}
-                  >
-                    Publicar
-                  </button>
-                </div>
-              )}
-            </div>
-
-            <div className="contenido">
-              <h2>Últimos Threads</h2>
-              <ul>
-                {threads.map((thread) => (
-                  <li key={thread.id}>
-                    <strong>
-                      {thread.autor || 'Anónimo'} |
-                      <span>
-                        <small> Publicado el: {new Date(thread.creado_en).toLocaleString()} </small>
-                      </span>
-                    </strong>
-                    <p><span>dice: {thread.contenido}</span></p>
-
-                    {thread.imagenUrl && (
-                      <img
-                        src={thread.imagenUrl}
-                        title='Haga click para poner la imagen en pantalla completa.'
-                        alt="Imagen del thread"
-                        className="imagen-thread"
-                        onClick={() => abrirImagen(thread.imagenUrl)}
-                      />
-                    )}
-                  </li>
-                ))}
-              </ul>
-
-              {imagenSeleccionada && (
-                <div className="imagen-modal" onClick={cerrarImagen} title='Haga click para quitar la imagen en pantalla completa.'>
-                  <img src={imagenSeleccionada} alt="Imagen en pantalla completa" className="imagen-ampliada" />
-                </div>
-              )}
-            </div>
-          </section>
-        </header>
+                      {thread.imagenUrl && (
+                        <img
+                          src={thread.imagenUrl}
+                          className="imagen-thread"
+                        />
+                      )}
+                    </div>
+                  ))}
+                </ul>
+              </div>
+            </section>
+          </header>
+        </>
       )}
     </>
   );
