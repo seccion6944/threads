@@ -563,7 +563,6 @@ body {
         flex-direction: column;
         align-items: center;
         gap: 2rem;
-        zoom: 1.5;
     }
 
     .encabezado img {
