@@ -180,7 +180,6 @@ body {
 }
 
 .threads {
-    display: none;
     position: absolute;
     top: 10rem;
     left: 4rem;
@@ -190,6 +189,8 @@ body {
     line-height: 2rem;
     gap: 1rem;
     font-style: italic;
+    opacity: 0;
+    transition: opacity 0.5s ease;
 }
 
 .perfil {
@@ -202,10 +203,17 @@ body {
     background-color: #161616;
     padding: 1rem;
     border-radius: 25px;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+.perfil.visible {
+    opacity: 1;
 }
 
 .threads.visible {
     display: flex;
+    opacity: 1;
 }
 
 .threads-loader {
@@ -411,6 +419,26 @@ body {
     background-color: var(--primary-color);
 }
 
+.filtro {
+    position: absolute;
+    top: 35%;
+    left: 5%;
+    padding: 12px;
+    border-radius: 10px;
+    background: white;
+    z-index: 9999;
+    pointer-events: auto;
+    color: black;
+    border: 1px solid #ccc;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+.filtro.visible {
+    opacity: 1;
+
+}
+
 @media (max-width: 767px) {
 
     html,
@@ -598,6 +626,8 @@ body {
         line-height: 2rem;
         gap: 1rem;
         font-style: italic;
+        opacity: 0;
+        transition: opacity 0.5s ease;
     }
 
     .perfil {

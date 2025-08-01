@@ -22,11 +22,14 @@ export default function App() {
   const [threads, setThreads] = useState([]);
   const [user, setUser] = useState(null);
   const [mostrarThreads, setMostrarThreads] = useState(false);
+  const [mostrarFiltro, setMostrarFiltro] = useState(false);
   const [mostrarPerfil, setMostrarPerfil] = useState(false);
   const [nuevoContenido, setNuevoContenido] = useState('');
   const [imagenSeleccionada, setImagenSeleccionada] = useState(null);
   const menuFuera = useRef(null);
   const navigate = useNavigate();
+  const [terminoBusqueda, setTerminoBusqueda] = useState('');
+  const [filtrados, setFiltrados] = useState([]);
 
   const [temaOscuro, setTemaOscuro] = useState(true);
 
@@ -131,6 +134,14 @@ export default function App() {
   };
 
   useEffect(() => {
+    const resultados = threads.filter(thread =>
+      thread.autor.toLowerCase().includes(terminoBusqueda.toLowerCase())
+    );
+    setFiltrados(resultados);
+  }, [terminoBusqueda, threads]);
+
+
+  useEffect(() => {
     const auth = getAuth();
     const unsubscribe = onAuthStateChanged(auth, (usuario) => {
       const estaLogueado = Boolean(usuario);
@@ -193,7 +204,31 @@ export default function App() {
               </div>
               <nav className="navegacion" ref={menuFuera}>
                 <a href="/"><GoHomeFill className='interaccion' title='Inicio' onClick={() => setTitulo('Inicio - Threads')} /></a>
-                <IoSearch className='interaccion' title='Buscar' onClick={() => setTitulo('Buscar - Threads')} />
+                <IoSearch
+                  className='interaccion'
+                  title='Buscar'
+                  onClick={() => {
+                    setTitulo('Buscar - Threads');
+                    const resultados = threads.filter(thread =>
+                      thread.autor.toLowerCase().includes(terminoBusqueda.toLowerCase())
+                    );
+                    setFiltrados(resultados);
+                    setMostrarFiltro(prev => !prev);
+                  }}
+                />
+
+                {usuarioAutenticado && (
+                  <>
+                    <input
+                      className={`filtro ${mostrarFiltro ? 'visible' : ''}`}
+                      type='text'
+                      value={terminoBusqueda}
+                      onChange={(e) => setTerminoBusqueda(e.target.value)}
+                      placeholder='Buscar por autor...'
+                    />
+                  </>
+                )}
+
                 <FaPlus className='interaccion' title='Crear' onClick={() => { setTitulo('Crear - Threads'); setMostrarThreads(prev => !prev); menuDespegable(!usuarioAutenticado); }} />
                 <FaRegHeart
                   className='interaccion'
@@ -206,8 +241,8 @@ export default function App() {
 
                 <VscAccount className='interaccion' title='Perfil' onClick={manejarClick} />
 
-                {mostrarPerfil && usuarioAutenticado && (
-                  <div className="perfil">
+                {usuarioAutenticado && (
+                  <div className={`perfil ${mostrarPerfil ? 'visible' : ''}`}>
                     <h3>Threads - Perfil del Usuario:</h3>
                     <p>Email: <span style={{ color: '#616161' }}>{user?.email}</span>.</p>
                     <p>Sesión iniciada con: <i>{user?.providerData?.[0]?.providerId === 'google.com' ? 'Google' : 'Correo y contraseña'}</i>.</p>
@@ -289,7 +324,7 @@ export default function App() {
               <div className="contenido">
                 <h2>Últimos Threads</h2>
                 <ul>
-                  {threads.map((thread) => (
+                  {(terminoBusqueda ? filtrados : threads).map((thread) => (
                     <div className='acomodar' key={thread.id}>
                       <strong>
                         {thread.autor || 'Anónimo'} |
@@ -298,16 +333,13 @@ export default function App() {
                         </span>
                       </strong>
                       <p><span>dice: {thread.contenido}</span></p>
-
                       {thread.imagenUrl && (
-                        <img
-                          src={thread.imagenUrl}
-                          className="imagen-thread"
-                        />
+                        <img src={thread.imagenUrl} className="imagen-thread" />
                       )}
                     </div>
                   ))}
                 </ul>
+
               </div>
             </section>
           </header>
